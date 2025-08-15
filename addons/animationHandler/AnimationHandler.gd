@@ -103,10 +103,13 @@ class _Animator:
 		# If current animation named on "NONE" (NOTHING)
 		if cAnimation == &"NONE": return # Not updating
 		
-		# If current time lower maximum time - animating
-		if cTime < mTime:
+		# If current time lower of maximum time - animating
+		if cTime >= mTime:
+			cTime = mTime
+			playing = false
+		elif cTime < mTime:
 			cTime += delta * timeScale
-			cTime = mTime if cTime > mTime else cTime # if current highed max - lower to max
+			cTime = mTime if cTime > mTime else cTime # if current highed of max - lower to max
 			
 			var cTimelines: Array[_Timeline] = animations[cAnimation]
 			
