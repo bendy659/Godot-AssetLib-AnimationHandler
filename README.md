@@ -73,9 +73,9 @@ func onEnded():
 # AnimationHandler.animator(animations: AnimationHandler._Animation) -> AnimationHandler._Animator
 ```
 
-* Creates and returns an Animator
-* Parameters:
-\\- animations – list of animations to handle
+* Creates and returns an Animator  
+* Parameters:  
+\\- animations – list of animations to handle  
 
 ---
 
@@ -83,10 +83,10 @@ func onEnded():
 # AnimationHandler.animation(animationName: String, timelines: Array[AnimationHandler._Timeline]) -> AnimationHandler._Animation
 ```
 
-* Creates and returns an Animation
-* Parameters:
-|- animationName – name of the animation
-\\- timelines – array of timelines
+* Creates and returns an Animation  
+* Parameters:  
+|- animationName – name of the animation  
+\\- timelines – array of timelines  
 
 ---
 
@@ -94,11 +94,11 @@ func onEnded():
 # AnimationHandler.timeline(target: Object, propertyPath: String, keyframes: AnimationHandler._Keyframes) -> AnimationHandler._Timeline
 ```
 
-* Creates and returns a Timeline
-* Parameters:
-|- target – object to animate
-|- propertyPath – property to animate
-\\- keyframes – list of keyframes
+* Creates and returns a Timeline  
+* Parameters:  
+|- target – object to animate  
+|- propertyPath – property to animate  
+\\- keyframes – list of keyframes  
 
 ---
 
@@ -106,10 +106,10 @@ func onEnded():
 # AnimationHandler.keyframe(time: float, value: Variant, easing: float, signalObject: Object = null, signalName: String = "") -> AnimationHandler._Keyframe
 ```
 
-* Creates and returns a Keyframe
-* Parameters:
-|- time – keyframe time
-|- value – value at this time
-|- easing – easing factor (like in AnimationPlayer)
-|- signalObject – optional, object to emit signal from
-\\- signalName – optional, name of the signal
+* Creates and returns a Keyframe  
+* Parameters:  
+|- time – keyframe time    
+|- value – value at this time  
+|- easing – easing factor (like in AnimationPlayer)  
+|- signalObject – optional, object to emit signal from  
+\\- signalName – optional, name of the signal  
