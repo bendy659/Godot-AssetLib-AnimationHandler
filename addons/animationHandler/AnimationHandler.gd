@@ -5,11 +5,17 @@ extends Node
 class _Timeline:
 	var object: Object
 	var property: String
-	var keyframes: Array[_Keyframe]
+	var keyframes: Array[Variant]
 	
-	func _init(object: Object, property: String, keyframes: Array[_Keyframe]):
+	func _init(object: Object, property: String, keyframes: Array[Variant]):
 		self.object = object
 		self.property = property
+		
+		for type in keyframes:
+			assert(
+				!(type is _Keyframe) || !(type is _SignalKeyframe),
+				"Unknown keyframe type. Support only Basic keyframe and signal keyframe"
+			)
 		self.keyframes = keyframes
 
 ## Keyframe data. [br]
@@ -18,14 +24,22 @@ class _Keyframe:
 	var time: int
 	var value: Variant
 	var easing: float
+	
+	func _init(time: int, value: Variant, easing: float):
+		self.time = time
+		self.value = value
+		self.easing = easing
+
+class _SignalKeyframe:
+	var time: int
+	var value: Dictionary
 	var signalObject: Object
 	var signalName: String
 	var eventTriggered: bool
 	
-	func _init(time: int, value: Variant, easing: float, signalObject: Object, signalName: String):
+	func _init(time: int, value: Dictionary, signalObject: Object, signalName: String):
 		self.time = time
 		self.value = value
-		self.easing = easing
 		self.signalObject = signalObject
 		self.signalName = signalName
 		self.eventTriggered = false
@@ -111,48 +125,51 @@ class _Animator:
 			var cTimelines: Array[_Timeline] = animations[cAnimation]
 			
 			for cLine in cTimelines:
-				var cTarg: Object = cLine.object
-				var cTargProp: StringName = cLine.property
-				var cKeys: Array[_Keyframe] = cLine.keyframes
+				var cKeys: Array = cLine.keyframes
 				
-				# If keyframes count lower or equal one keyframe - skip
+				# Если кейфреймов меньше двух → ничего интерполировать
 				if cKeys.size() <= 1: 
-					playing = false # Stop playing
+					playing = false
 					return
 				
-				var cKey: _Keyframe
-				var nKey: _Keyframe
+				var cKey
+				var nKey
 				
 				for key in cKeys:
-					# If keyframe event object & signal not null and event triggered = false
-					if !key.eventTriggered:
-						key.eventTriggered = true # Change state
-						key.signalObject.emit_signal(key.signalName) # Emit signal
+					# 🔹 Если это SignalKeyframe
+					if key is _SignalKeyframe:
+						if !key.eventTriggered and cTime >= key.time:
+							key.triggered()
+							if is_instance_valid(key.signalObject):
+								key.signalObject.emit_signal(key.signalName, key.value)
 					
-					# If keyframe time lower or equal current time - current key = key
-					# else if keyframe time highed current time and next key == null
-					if key.time <= cTime:
-						cKey = key
-					elif key.time > cTime && !nKey:
-						nKey = key
+					# 🔹 Обычный Keyframe
+					if key is _Keyframe:
+						if key.time <= cTime:
+							cKey = key
+						elif key.time > cTime and !nKey:
+							nKey = key
 					
-					if cKey && nKey: break
+					if cKey and nKey:
+						break
 				
+				# если нету ключей для интерполяции — берём хотя бы один
 				if !cKey:
 					cKey = cKeys[0]
-					nKey = cKeys[0] if cKeys.size() == 1 else cKeys[1]
-				
+					nKey = cKeys[min(1, cKeys.size()-1)]
 				if !nKey:
 					nKey = cKey
 				
-				var tTime: float = nKey.time - cKey.time # Total time
-				var prg = (cTime - cKey.time) / tTime if tTime > 0 else 1 # Progress (0..1)
-				prg = clamp(prg, 0, 1)
-				
-				var eased: float = ease(prg, cKey.easing)
-				var interpolated: Variant = interpolateValue(cKey.value, nKey.value, eased)
-				
-				set_nested(cLine.object, str(cLine.property), interpolated)
+				# интерполяция только если оба обычные Keyframe
+				if cKey is _Keyframe and nKey is _Keyframe:
+					var tTime: float = nKey.time - cKey.time
+					var prg = (cTime - cKey.time) / tTime if tTime > 0 else 1
+					prg = clamp(prg, 0, 1)
+					
+					var eased: float = ease(prg, cKey.easing)
+					var interpolated: Variant = interpolateValue(cKey.value, nKey.value, eased)
+					
+					set_nested(cLine.object, str(cLine.property), interpolated)
 	
 	func interpolateValue(from: Variant, to: Variant, weight: float) -> Variant:
 		var typeA = typeof(from)
@@ -299,7 +316,7 @@ func animation(animationName: String, timelines: Array[_Timeline]) -> _Animation
 ##     AnimationHandler.keyframe(1, Vector2(64, 64), 1.0, animationEnded)
 ## ])
 ## [/codeblock]
-func timeline(target: Object, property: String, keyframes: Array[_Keyframe]) -> _Timeline:
+func timeline(target: Object, property: String, keyframes: Array[Variant]) -> _Timeline:
 	return _Timeline.new(target, property, keyframes)
 
 ## Creates a keyframe for an animation. [br]
@@ -313,8 +330,11 @@ func timeline(target: Object, property: String, keyframes: Array[_Keyframe]) -> 
 ## [codeblock]
 ## AnimationHandler.keyframe(1, Color.RED, 1.0, my_signal)
 ## [/codeblock]
-func keyframe(time: int, value: Variant, easing: float = 1.0, signalObject: Object = Object, signalName: String = "") -> _Keyframe:
-	return _Keyframe.new(time, value, easing, signalObject, signalName)
+func keyframe(time: int, value: Variant, easing: float = 1.0) -> _Keyframe:
+	return _Keyframe.new(time, value, easing)
+
+func signalKeyframe(time: int, value: Variant, signalObject: Object, signalName: String) -> _SignalKeyframe:
+	return _SignalKeyframe.new(time, value, signalObject, signalName)
 
 ## Main
 
