@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+/**         export-ignore
+/preview    export-ignore
+/preview/** export-ignore
+
+## Main addon
+/addons    !export-ignore
+/addons/** !export-ignore
