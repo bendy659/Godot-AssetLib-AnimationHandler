@@ -70,7 +70,9 @@ func onEnded():
 ----
 
 ```gd
-# AnimationHandler.animator(animations: AnimationHandler._Animation) -> AnimationHandler._Animator
+AnimationHandler.animator(
+	animations: AnimationHandler._Animation
+) -> AnimationHandler._Animator
 ```
 
 * Creates and returns an Animator  
@@ -80,7 +82,10 @@ func onEnded():
 ---
 
 ```gd
-# AnimationHandler.animation(animationName: String, timelines: Array[AnimationHandler._Timeline]) -> AnimationHandler._Animation
+AnimationHandler.animation(
+	animationName: String,
+	timelines: Array[AnimationHandler._Timeline]
+) -> AnimationHandler._Animation
 ```
 
 * Creates and returns an Animation  
@@ -91,7 +96,11 @@ func onEnded():
 ---
 
 ```gd
-# AnimationHandler.timeline(target: Object, propertyPath: String, keyframes: AnimationHandler._Keyframes) -> AnimationHandler._Timeline
+AnimationHandler.timeline(
+	target: Object,
+	propertyPath: String,
+	keyframes: AnimationHandler._Keyframes
+) -> AnimationHandler._Timeline
 ```
 
 * Creates and returns a Timeline  
@@ -103,7 +112,13 @@ func onEnded():
 ---
 
 ```gd
-# AnimationHandler.keyframe(time: float, value: Variant, easing: float, signalObject: Object = null, signalName: String = "") -> AnimationHandler._Keyframe
+AnimationHandler.keyframe(
+	time: float,
+	value: Variant,
+	easing: float,
+	signalObject: Object = null,
+	signalName: String = ""
+) -> AnimationHandler._Keyframe
 ```
 
 * Creates and returns a Keyframe  
